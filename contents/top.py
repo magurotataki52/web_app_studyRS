@@ -6,7 +6,7 @@ import datetime
 
 dt_now = datetime.datetime.now()
 
-st.session_state.isTimerScene = False
+st.session_state.timer_scene = "setting"
 st.session_state.isTimerRunning = False
 
 def goToTimer():
