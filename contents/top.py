@@ -3,9 +3,11 @@ import streamlit_calendar as st_calendar
 import json
 import math
 import time
-import datetime
+from datetime import datetime, timedelta
+import pandas as pd
+import numpy as np
 
-dt_now = datetime.datetime.now()
+dt_now = datetime.now()
 
 st.session_state.timer_scene = "setting"
 st.session_state.isTimerRunning = False
@@ -13,6 +15,10 @@ st.session_state.isTimerRunning = False
 sbjName_list = []
 for i in range(len(st.session_state.subjects)):
     sbjName_list.append(st.session_state.subjects[i]["name"])
+
+sbjColor_list = []
+for i in range(len(st.session_state.subjects)):
+    sbjName_list.append(st.session_state.subjects[i]["color"])
 
 if st.session_state.loaded_savefile is not None:
     parsed_data = json.loads(str(st.session_state.loaded_savefile))
@@ -23,6 +29,7 @@ def goToTimer():
     st.session_state.movePageTo = {"directory":"contents/timer.py","title":"記録/タイマー"}
 
 def goToRecord():
+    st.session_state.record_Initial_value = {"time": 0}
     st.session_state.movePageTo = {"directory":"contents/record.py","title":"記録/直接記録"}
 
 
@@ -35,7 +42,7 @@ if st.session_state.loaded_savefile is not None:
 st.write("")
 
 #データ保存 --------------------------------------------------
-dt = datetime.datetime.now()
+dt = datetime.now()
 datetime_str = dt.strftime("%Y-%m-%d %H:%M:%S")
 last_updated = datetime_str
 subjects = st.session_state.subjects
@@ -49,15 +56,20 @@ obj = {
     "schedules": schedules
 }
 
-json_txt = json.dumps(obj)
+json_txt = json.dumps(obj, default=str)
 print(json_txt)
 
 st.download_button("データを保存する", type="primary", data=json_txt, file_name="studyRS_savedata.json",mime="text/json")
 
 #------------------------------------------------------------
 
+st.write("## イベント")
+st.write("「期末考査」まであと")
+st.write("### 25日")
+
+st.write("")
+
 st.write("## 記録")
-st.write(dt_now.strftime('%Y年%m月%d日 %H:%M:%S'))
 st.button("タイマーで記録する", type="primary" , use_container_width=True, on_click=goToTimer)
 st.button("直接記録する", type="primary" , use_container_width=True, on_click=goToRecord)
 
@@ -84,10 +96,9 @@ st.write("")
 # calendarにはイベント一覧を配列にして渡す
 event_list = []
 eventId = 0
-for day_schedule in st.session_state.schedules:
-    for schedule in day_schedule["contents"]:
+for schedule in st.session_state.schedules:
         eventId = eventId + 1
-        print(f"予定読み込み | 日時:{day_schedule["date"]} タイトル:{schedule["title"]} 教科:{schedule["subject"]} 時間:{schedule["time"]} ID:{eventId}")
+        print(f"予定読み込み | 日時:{schedule["date"]} タイトル:{schedule["title"]} 教科:{schedule["subject"]} 時間:{schedule["time"]} ID:{eventId}")
 
         #設定されている教科がリストにあるか？
         if schedule["subject"] in sbjName_list:
@@ -98,7 +109,7 @@ for day_schedule in st.session_state.schedules:
         event_list.append({
                 "id": eventId,
                 "title": schedule["title"],
-                "start": f"{day_schedule["date"]}T00:00:00",
+                "start": f"{schedule["date"]}T00:00:00",
                 "allDay": "true",
                 "color": color
             }
@@ -130,5 +141,22 @@ options = {
 # イベントを表示するカレンダーを作成
 st_calendar.calendar(events=event_list,options=options)
 
+st.write("")
+st.write("")
+st.write("### 学習記録")
+#----------------------------------------------------------------------------------------
+#6日前から今日までの記録を探す
+for i in range(7):
+    dt = datetime.now()
+    search_date = dt + timedelta(days=-6+i)
+    datetime_str = search_date.strftime("%Y-%m-%d")
+    print(datetime_str)
 
-st.write(str(st.session_state.loaded_savefile))
+
+chart_data = pd.DataFrame(
+   {"曜日": ["日","月","火","水","木","金","土"], "国語": [5,0,25,40,5,0,25], "数学": [60,0,30,30,25,50,0], "英語": [0,50,25,40,30,25,25]}
+)
+
+st.bar_chart(
+   chart_data, x="曜日", y=["国語","数学","英語"], color=["#EB6666","#4694DD","#D443CD"],  y_label="学習時間(分)"# Optional
+)

@@ -1,6 +1,7 @@
 import streamlit as st
 import math
 import time
+import pandas as pd
 
 if "study_time" not in st.session_state:
     st.session_state.study_time = 5
@@ -15,6 +16,10 @@ if "remaining_time" not in st.session_state:
 
 def backToTop():
     st.session_state.movePageTo = {"directory":"contents/top.py","title":"トップ"}
+
+def goToRecord(time):
+    st.session_state.record_Initial_value = {"time": time}
+    st.session_state.movePageTo = {"directory":"contents/record.py","title":"記録/直接記録"}
 
 
 def start(studyTime_p, RestTime_p , Repetition_p):
@@ -55,8 +60,8 @@ if st.session_state.timer_scene == "setting":
 
     if timer_type == "カウントダウン":
         col1, col2 = st.columns(2)
-        study_time_input = col1.number_input("学習時間(秒)", min_value=0, max_value=50, step=1, value=25)
-        rest_time_input = col2.number_input("休憩時間(秒)", min_value=1, max_value=10, step=1, value=5)
+        study_time_input = col1.number_input("学習時間(秒)", min_value=0, max_value=50, step=5, value=25)
+        rest_time_input = col2.number_input("休憩時間(秒)", min_value=1, max_value=10, step=5, value=5)
         col1,col2 = st.columns(2)
         repirepetition_num_input = col1.number_input("繰り返す回数", min_value=1, max_value=30, step=1, value=2)
         col1,col2 = st.columns(2)
@@ -131,7 +136,7 @@ if st.session_state.timer_scene == "result":
     st.header("終了！")
     
     st.write("")
-    st.write(f"### 今回の合計学習時間：{st.session_state.study_time}分")
+    st.write(f"### 今回の合計学習時間：{st.session_state.study_time * st.session_state.repetition_num}分")
 
     st.write("")
-    st.button("記録する", type="primary" , use_container_width=True)
+    st.button("記録する", type="primary" , use_container_width=True, on_click=goToRecord, args=[st.session_state.study_time * st.session_state.repetition_num])

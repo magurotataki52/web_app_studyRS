@@ -13,6 +13,9 @@ if "mainstateReloadCount" not in st.session_state:
 if "loaded_savefile" not in st.session_state:
     st.session_state.loaded_savefile = None
 
+if "record_Initial_value" not in st.session_state:
+    st.session_state.record_Initial_value = {"time": 0}
+
 st.session_state.mainstateReloadCount = st.session_state.mainstateReloadCount + 1
 print(st.session_state.mainstateReloadCount)
 
