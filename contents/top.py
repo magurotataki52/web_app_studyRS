@@ -32,6 +32,23 @@ def goToRecord():
     st.session_state.record_Initial_value = {"time": 0}
     st.session_state.movePageTo = {"directory":"contents/record.py","title":"記録/直接記録"}
 
+def goToSchedule():
+    st.session_state.schedule_Initial_value = {"time": 0}
+    st.session_state.movePageTo = {"directory":"contents/schedule.py","title":"予定作成"}
+
+@st.dialog('イベントを設定する')
+def setEvent_dialog():
+    dt_today = datetime.today()
+    max_date = datetime(2099, 12, 31)
+    name = st.text_input('名前',st.session_state.event["name"])
+    if st.session_state.event["date"] == "":
+        defalt_value = dt_today
+    else:
+        defalt_value = st.session_state.event["date"]
+    date_input = st.date_input('日付', defalt_value, min_value=dt_today, max_value=max_date)
+    if st.button('設定する', type="primary" , use_container_width=True):
+        st.session_state.event = {'date': date_input,"name": name}
+        st.rerun()
 
 # Header
 
@@ -48,12 +65,14 @@ last_updated = datetime_str
 subjects = st.session_state.subjects
 records = st.session_state.records
 schedules = st.session_state.schedules
+event = st.session_state.event
 
 obj = {
     "last_updated": last_updated,
     "subjects": subjects,
     "records": records,
-    "schedules": schedules
+    "schedules": schedules,
+    "event": event
 }
 
 json_txt = json.dumps(obj, default=str)
@@ -61,13 +80,29 @@ print(json_txt)
 
 st.download_button("データを保存する", type="primary", data=json_txt, file_name="studyRS_savedata.json",mime="text/json")
 
-#------------------------------------------------------------
+#-イベント-------------------------------------------------------------------------
 
-st.write("## イベント")
-st.write("「期末考査」まであと")
-st.write("### 25日")
+col1,col2 = st.columns(2)
+col1.write("## イベント")
+col2.button("設定する", on_click=setEvent_dialog)
+if not st.session_state.event["date"] == "":
+    date_now =  datetime.date(datetime.now())
+    event_date = st.session_state.event["date"]
+    print(type(event_date))
+    if type(event_date) == str:
+        event_date = datetime.strptime(event_date, "%Y-%m-%d")
+        event_date = datetime.date(event_date)
+
+    remain_days = event_date - date_now
+    st.write(f"「{st.session_state.event["name"]}」まであと")
+    if remain_days.days <= 0:
+        st.write(f"###   0日")
+    else:
+        st.write(f"###   {remain_days.days}日")
 
 st.write("")
+
+#-記録関連ボタン-------------------------------------------------------------------------
 
 st.write("## 記録")
 st.button("タイマーで記録する", type="primary" , use_container_width=True, on_click=goToTimer)
@@ -76,15 +111,23 @@ st.button("直接記録する", type="primary" , use_container_width=True, on_cl
 st.write("")
 st.write("")
 
-st.write("### Todo")
-st.write("##### ・項目１")
-st.write("##### ・項目２")
-st.write("##### ・項目３")
+#-今日の予定-------------------------------------------------------------------------
+
+st.write("### 今日の予定")
+for i in range(len(st.session_state.schedules)):
+    if datetime.date(datetime.strptime(st.session_state.schedules[i]["date"], "%Y-%m-%d")) == datetime.date(datetime.now()):
+        if not st.session_state.schedules[i]["completed"]:
+            st.session_state.schedules[i]["completed"] = st.checkbox(f'{st.session_state.schedules[i]["title"]}')
+            if st.session_state.schedules[i]["completed"]:
+                st.rerun()
 
 st.write("")
 st.write("")
 
 #-カレンダー-------------------------------------------------------------------------
+
+st.write("### カレンダー")
+st.button("予定を作成する", type="primary" , use_container_width=True, on_click=goToSchedule)
 
 #event1 = {
 #    'id': '1', # イベントを識別するためのID。重複不可
@@ -160,3 +203,8 @@ chart_data = pd.DataFrame(
 st.bar_chart(
    chart_data, x="曜日", y=["国語","数学","英語"], color=["#EB6666","#4694DD","#D443CD"],  y_label="学習時間(分)"# Optional
 )
+
+all_record = 0
+for data in st.session_state.records:
+    all_record = all_record + data["time"]
+st.write(f"合計学習時間:{all_record}分")

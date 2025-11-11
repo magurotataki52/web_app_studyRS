@@ -16,6 +16,9 @@ if "loaded_savefile" not in st.session_state:
 if "record_Initial_value" not in st.session_state:
     st.session_state.record_Initial_value = {"time": 0}
 
+if "schedule_Initial_value" not in st.session_state:
+    st.session_state.record_Initial_value = {"time": 0}
+
 st.session_state.mainstateReloadCount = st.session_state.mainstateReloadCount + 1
 print(st.session_state.mainstateReloadCount)
 
@@ -37,6 +40,7 @@ def applySaveFile(file):
     st.session_state.subjects = obj["subjects"]
     st.session_state.records = obj["records"]
     st.session_state.schedules = obj["schedules"]
+    st.session_state.event = obj["event"]
 
 # movePageToが定義されていない場合、セーブデータを読み込むか選択しtopに設定して移動
 if "movePageTo" not in st.session_state and st.session_state.mainstateReloadCount == 3:
@@ -69,7 +73,7 @@ if st.session_state.mainstateReloadCount >= 1 and st.session_state.mainstateRelo
     elif new_button:
         dt = datetime.now()
         datetime_str = dt.strftime("%Y-%m-%d %H:%M:%S")
-        obj = {"last_updated":datetime_str,"subjects":[],"records":[],"schedules":[]}
+        obj = {"last_updated":datetime_str,"subjects":[],"records":[],"schedules":[],"event":{"date":"","name":""}}
         st.session_state.loaded_savefile = json.dumps(obj)
         applySaveFile(st.session_state.loaded_savefile)
         st.rerun()

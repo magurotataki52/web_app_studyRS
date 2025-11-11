@@ -5,8 +5,11 @@ sbjName_list = []
 for i in range(len(st.session_state.subjects)):
     sbjName_list.append(st.session_state.subjects[i]["name"])
 
-def backToRecord():
-    st.session_state.movePageTo = {"directory":"contents/record.py","title":"トップ"}
+def back():
+    if st.session_state.movedFrom == "record":
+        st.session_state.movePageTo = {"directory":"contents/record.py","title":"直接記録"}
+    elif st.session_state.movedFrom == "schedule":
+        st.session_state.movePageTo = {"directory":"contents/schedule.py","title":"予定作成"}
 
 @st.dialog('教科を追加する')
 def addSubject_dialog():
@@ -50,7 +53,7 @@ if not st.session_state.editSubject == "":
         del st.session_state.subjects[st.session_state.editSubject["target"]]
     st.session_state.editSubject = ""
 
-st.button("<<記録画面に戻る", on_click=backToRecord) 
+st.button("<<戻る", on_click=back) 
 
 st.header("教科設定")
 
