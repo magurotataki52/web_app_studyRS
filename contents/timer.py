@@ -2,6 +2,8 @@ import streamlit as st
 import math
 import time
 import pandas as pd
+import base64
+import streamlit.components.v1 as stc
 
 if "study_time" not in st.session_state:
     st.session_state.study_time = 5
@@ -14,13 +16,18 @@ if "pause_time" not in st.session_state:
 if "remaining_time" not in st.session_state:
     st.session_state.remaining_time = 0
 
+def resetTimer():
+    st.session_state.start_time = 0
+    st.session_state.pause_time = 0
+    st.session_state.remaining_time = 0
+
 def backToTop():
+    resetTimer()
     st.session_state.movePageTo = {"directory":"contents/top.py","title":"トップ"}
 
 def goToRecord(time):
     st.session_state.record_Initial_value = {"time": time}
     st.session_state.movePageTo = {"directory":"contents/record.py","title":"記録/直接記録"}
-
 
 def start(studyTime_p, RestTime_p , Repetition_p):
     if st.session_state.timer_scene == "setting":
@@ -33,7 +40,6 @@ def start(studyTime_p, RestTime_p , Repetition_p):
         st.session_state.repetition = 0
         st.session_state.repetition_num = Repetition_p
             # Studying ... 0  Rest ... 1
-        st.rerun()
 
 def endTimer():
     st.session_state.isTimerRunning = False
@@ -54,6 +60,30 @@ def backToTop_dialog():
 st.button("<<トップに戻る", on_click=backToTop)
 st.title("記録")
 
+button = st.button('アプリ実行')
+
+if st.session_state.developer_mode:
+    if button:
+
+        audio_path1 = 'sounds/alarm.wav' #入力する音声ファイル
+
+        audio_placeholder = st.empty()
+
+        file_ = open(audio_path1, "rb")
+        contents = file_.read()
+        file_.close()
+
+        audio_str = "data:audio/ogg;base64,%s"%(base64.b64encode(contents).decode())
+        audio_html = """
+                        <audio autoplay=True>
+                        <source src="%s" type="audio/ogg" autoplay=True>
+                        Your browser does not support the audio element.
+                        </audio>
+                    """ %audio_str
+
+        audio_placeholder.empty()
+        time.sleep(0.5) #これがないと上手く再生されません
+        audio_placeholder.markdown(audio_html, unsafe_allow_html=True)
 
 if st.session_state.timer_scene == "setting":
     timer_type = st.radio('タイマーの種類', ['カウントダウン','ストップウォッチ'])
@@ -65,7 +95,7 @@ if st.session_state.timer_scene == "setting":
         col1,col2 = st.columns(2)
         repirepetition_num_input = col1.number_input("繰り返す回数", min_value=1, max_value=30, step=1, value=2)
         col1,col2 = st.columns(2)
-        confirm_button = col1.button("開始", type="primary" ,on_click=start, args=(study_time_input, rest_time_input, repirepetition_num_input))
+        confirm_button = st.button("開始", type="primary" ,on_click=start, args=(study_time_input, rest_time_input, repirepetition_num_input), use_container_width=True)
     elif timer_type == "ストップウォッチ":
 
         with st.form("timerSettings", clear_on_submit=False):
@@ -74,8 +104,8 @@ if st.session_state.timer_scene == "setting":
 
 if st.session_state.timer_scene == "timer":
     col1, col2 = st.columns(2)
-    pause_button = col1.button("一時停止")
-    restart_button = col2.button("再開")
+    pause_button = col1.button("一時停止",use_container_width=True)
+    restart_button = col2.button("再開", use_container_width=True)
     # reset_button = col3.button("リセット")
 
     if pause_button:
@@ -101,9 +131,23 @@ if st.session_state.timer_scene == "timer":
 
         with placeholder.container():
             if st.session_state.timer_section == 0:
-                st.header(f"勉強中: {remaining_time_sec // 60:02d}:{remaining_time_sec % 60:02d}")
+                st.markdown(
+                "<h3 style='padding: 20px; text-align: center; height: 25px; color:#ba2525;'>勉強中</h3>",
+                unsafe_allow_html=True
+                )
+                st.markdown(
+                f"<h1 style='padding: 20px; text-align: center; height: 80px; font-size: 80px;'>{remaining_time_sec // 60:02d}:{remaining_time_sec % 60:02d}</h1>",
+                unsafe_allow_html=True
+                )
             else:
-                st.header(f"休憩中: {remaining_time_sec // 60:02d}:{remaining_time_sec % 60:02d}")
+                st.markdown(
+                "<h3 style='padding: 20px; text-align: center; height: 25px; color:#36ba25;'>休憩中</h3>",
+                unsafe_allow_html=True
+                )
+                st.markdown(
+                f"<h1 style='padding: 20px; text-align: center; height: 80px; font-size: 80px;'>{remaining_time_sec // 60:02d}:{remaining_time_sec % 60:02d}</h1>",
+                unsafe_allow_html=True
+                )
             if st.session_state.developer_mode:
                 
                 st.write(f"経過時間(秒):{elapsed_time} // 経過率{elapsed_time / (timer_target)}")
@@ -115,7 +159,12 @@ if st.session_state.timer_scene == "timer":
 
             # st.progress(time_progress_limited)
             st.write("")
-            st.write(f"### 残り回数：{st.session_state.repetition_num - st.session_state.repetition}")
+            st.write("")
+            # st.write(f"### 残り回数：{st.session_state.repetition_num - st.session_state.repetition}")
+            st.markdown(
+            f"<h2 style='padding: 20px; text-align: center; height: 50px; font-size: 25px;'>残り回数：{st.session_state.repetition_num - st.session_state.repetition}</h2>",
+            unsafe_allow_html=True
+            )
             
 
             if elapsed_time >= timer_target:

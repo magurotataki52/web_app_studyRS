@@ -6,6 +6,7 @@ import time
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
+import streamlit.components.v1 as stc
 
 dt_now = datetime.now()
 
@@ -50,9 +51,19 @@ def setEvent_dialog():
         st.session_state.event = {'date': date_input,"name": name}
         st.rerun()
 
-# Header
+# タイトル --------------------------------------------------
 
-st.title("勉強記録予定アプリ(試作)")
+st.markdown(
+    "<h1 style='padding: 20px; text-align: center; height: 50px;'>勉強記録予定アプリ(試作)</h1>",
+    unsafe_allow_html=True
+)
+st.markdown(
+    "<p style='padding: 20px; text-align: center; height: 10px;'>version 0.1.0</p>",
+    unsafe_allow_html=True
+)
+
+st.write("")
+
 
 if st.session_state.loaded_savefile is not None:
     st.write(f"最終更新：{parsed_data['last_updated']}")

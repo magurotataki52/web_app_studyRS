@@ -51,5 +51,7 @@ subject_input = col1.selectbox('教科', sbjName_list)
 add_subject_btn = col2.button("教科を設定", on_click=goToSubjectEdit)
 time_input = st.number_input("時間(分)", step=5, min_value=0, max_value=720, value=st.session_state.record_Initial_value["time"])
 title_input = st.text_input("タイトル")
+if title_input == "33550337":
+    st.success("see you tomorrow.")
 auto_schedule = st.checkbox("自動で復習予定を作成する",value=True)
 submit_btn = st.button("確定", type="primary", use_container_width=True,on_click=recordSubmit,args=[date_input,subject_input,title_input,time_input,auto_schedule])

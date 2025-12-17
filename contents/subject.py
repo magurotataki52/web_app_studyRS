@@ -61,7 +61,9 @@ st.button("教科を追加する", on_click=addSubject_dialog)
 st.write("")
 st.write("## 教科リスト")
 for i in range(len(st.session_state.subjects)):
-    col1,col2,col3= st.columns(3)
-    col1.write(f"#### □ {st.session_state.subjects[i]["name"]}")
-    col2.color_picker('色', st.session_state.subjects[i]["color"], key=uuid.uuid4(), disabled=True, label_visibility="hidden")
-    col3.button("編集", key=uuid.uuid4(), on_click=editSubject_dialog, args=[i])
+    col1,col2= st.columns(2)
+    col1.markdown(
+        f"<h3 style='padding: 20px; height: 25px;'><span style='color: {st.session_state.subjects[i]["color"]};'>■</span> {st.session_state.subjects[i]["name"]}</h3>",
+        unsafe_allow_html=True
+    )
+    col2.button("編集", key=uuid.uuid4(), on_click=editSubject_dialog, args=[i])
