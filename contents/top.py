@@ -58,7 +58,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 st.markdown(
-    "<p style='padding: 20px; text-align: center; height: 10px;'>version 0.1.0</p>",
+    "<p style='padding: 20px; text-align: center; height: 10px;'>version 0.2.0</p>",
     unsafe_allow_html=True
 )
 
@@ -91,10 +91,12 @@ print(json_txt)
 
 st.download_button("データを保存する", type="primary", data=json_txt, file_name="studyRS_savedata.json",mime="text/json")
 
+st.write("")
+
 #-イベント-------------------------------------------------------------------------
 
 col1,col2 = st.columns(2)
-col1.write("## イベント")
+col1.write("## 🗓️イベント")
 col2.button("設定する", on_click=setEvent_dialog)
 if not st.session_state.event["date"] == "":
     date_now =  datetime.date(datetime.now())
@@ -105,26 +107,36 @@ if not st.session_state.event["date"] == "":
         event_date = datetime.date(event_date)
 
     remain_days = event_date - date_now
-    st.write(f"「{st.session_state.event["name"]}」まであと")
     if remain_days.days <= 0:
-        st.write(f"###   0日")
-    else:
-        st.write(f"###   {remain_days.days}日")
+        remain_days = 0
+    st.markdown(
+    f"<h3 style='padding: 20px; text-align: center; height: 50px;'>「{st.session_state.event["name"]}」まで</h3>",
+    unsafe_allow_html=True
+    )
+    st.markdown(
+    f"<h2 style='padding: 20px; text-align: center; height: 50px;'>{remain_days.days}日</h2>",
+    unsafe_allow_html=True
+    )
+else:
+    st.markdown(
+    f"<h3 style='padding: 20px; text-align: center; height: 50px; color: #aaaaaa;'>イベントが設定されていません</h3>",
+    unsafe_allow_html=True
+    )
 
 st.write("")
-
+st.write("")
 #-記録関連ボタン-------------------------------------------------------------------------
 
-st.write("## 記録")
-st.button("タイマーで記録する", type="primary" , use_container_width=True, on_click=goToTimer)
-st.button("直接記録する", type="primary" , use_container_width=True, on_click=goToRecord)
+st.write("## 📝記録")
+st.button("⏰️タイマーで記録する", type="primary" , use_container_width=True, on_click=goToTimer)
+st.button("📝直接記録する", type="primary" , use_container_width=True, on_click=goToRecord)
 
 st.write("")
 st.write("")
 
 #-今日の予定-------------------------------------------------------------------------
 
-st.write("### 今日の予定")
+st.write("### ☑今日の予定")
 for i in range(len(st.session_state.schedules)):
     if datetime.date(datetime.strptime(st.session_state.schedules[i]["date"], "%Y-%m-%d")) == datetime.date(datetime.now()):
         if not st.session_state.schedules[i]["completed"]:
@@ -137,7 +149,7 @@ st.write("")
 
 #-カレンダー-------------------------------------------------------------------------
 
-st.write("### カレンダー")
+st.write("### 📆カレンダー")
 st.button("予定を作成する", type="primary" , use_container_width=True, on_click=goToSchedule)
 
 #event1 = {
@@ -219,3 +231,37 @@ all_record = 0
 for data in st.session_state.records:
     all_record = all_record + data["time"]
 st.write(f"合計学習時間:{all_record}分")
+
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+
+modes = [None,"development","presentation"]
+st.session_state.developer_mode = st.selectbox("モード",modes,index=modes.index(st.session_state.developer_mode))

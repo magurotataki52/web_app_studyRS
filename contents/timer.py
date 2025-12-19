@@ -62,7 +62,7 @@ st.title("記録")
 
 button = st.button('アプリ実行')
 
-if st.session_state.developer_mode:
+if st.session_state.developer_mode == "development":
     if button:
 
         audio_path1 = 'sounds/alarm.wav' #入力する音声ファイル
@@ -94,7 +94,7 @@ if st.session_state.timer_scene == "setting":
         rest_time_input = col2.number_input("休憩時間(秒)", min_value=1, max_value=10, step=5, value=5)
         col1,col2 = st.columns(2)
         repirepetition_num_input = col1.number_input("繰り返す回数", min_value=1, max_value=30, step=1, value=2)
-        col1,col2 = st.columns(2)
+        st.checkbox("アラーム音を鳴らす")
         confirm_button = st.button("開始", type="primary" ,on_click=start, args=(study_time_input, rest_time_input, repirepetition_num_input), use_container_width=True)
     elif timer_type == "ストップウォッチ":
 
@@ -122,9 +122,15 @@ if st.session_state.timer_scene == "timer":
     while st.session_state.isTimerRunning:
         elapsed_sec_time = st.session_state.repetition * (st.session_state.study_time + st.session_state.rest_time) * 1
         if st.session_state.timer_section == 0:
-            timer_target = elapsed_sec_time + st.session_state.study_time * 1
+            if st.session_state.developer_mode == "presentation":
+                timer_target = elapsed_sec_time + st.session_state.study_time * 1
+            else:
+                timer_target = elapsed_sec_time + st.session_state.study_time * 60
         else:
-            timer_target = elapsed_sec_time + st.session_state.study_time + st.session_state.rest_time * 1
+            if st.session_state.developer_mode == "presentation":
+                timer_target = elapsed_sec_time + st.session_state.study_time + st.session_state.rest_time * 1
+            else:
+                timer_target = elapsed_sec_time + st.session_state.study_time + st.session_state.rest_time * 60
 
         elapsed_time = time.time() - st.session_state.start_time
         remaining_time_sec = int(timer_target * 1 - elapsed_time)
@@ -148,7 +154,7 @@ if st.session_state.timer_scene == "timer":
                 f"<h1 style='padding: 20px; text-align: center; height: 80px; font-size: 80px;'>{remaining_time_sec // 60:02d}:{remaining_time_sec % 60:02d}</h1>",
                 unsafe_allow_html=True
                 )
-            if st.session_state.developer_mode:
+            if st.session_state.developer_mode == "development":
                 
                 st.write(f"経過時間(秒):{elapsed_time} // 経過率{elapsed_time / (timer_target)}")
             

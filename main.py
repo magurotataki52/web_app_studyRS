@@ -48,7 +48,7 @@ if "movePageTo" not in st.session_state and st.session_state.mainstateReloadCoun
     movePage(st.session_state.movePageTo)
 
 if "developer_mode" not in st.session_state:
-    st.session_state.developer_mode = False
+    st.session_state.developer_mode = None
 
 if st.session_state.mainstateReloadCount >= 3:
     movePage(st.session_state.movePageTo)
